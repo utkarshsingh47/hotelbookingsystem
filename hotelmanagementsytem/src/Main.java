@@ -1,4 +1,11 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Random;
 
 // building ticket booking system
 //what we need
@@ -33,6 +40,7 @@ public class Main {
         JLabel amountlb = new JLabel("amount: ");
         JTextField amounttf= new JTextField();
 
+        JLabel roomno = new JLabel();
 //        to add button
         JButton bookTicketBtn= new JButton("Book Now");
         JButton cancelbtn= new JButton("Clear");
@@ -63,10 +71,11 @@ public class Main {
         amountlb.setBounds(300,150,200,30);
         amounttf.setBounds(420,150,150,30);
 
+        roomno.setBounds(50,200,200,30);
         //to add button
-        bookTicketBtn.setBounds(100,200,120,30);
-        cancelbtn.setBounds(250,200,120,30);
-        clearbtn.setBounds(400,200,120,30);
+        bookTicketBtn.setBounds(100,300,120,30);
+        cancelbtn.setBounds(250,300,120,30);
+        clearbtn.setBounds(400,300,120,30);
 //to add components on frame
 //        on left side
         frame.add(namelb);
@@ -87,18 +96,93 @@ public class Main {
         frame.add(florpreftf);
         frame.add(amountlb);
         frame.add(amounttf);
+        frame.add(roomno);
+
+
 //        for button
         frame.add(bookTicketBtn);
         frame.add(cancelbtn);
         frame.add(clearbtn);
 
+        clearbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
+                System.out.println("Clear button clicked!");
+                nametf.setText("");
+                emailtf.setText("");
+                mobnotf.setText("");
+                ageltf.setText("");
+                arivaltf.setText("");
+                departtf.setText("");
+
+                florpreftf.setText("");
+                amounttf.setText("");
+            }
+        });
+////for exit btn
+        cancelbtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose();
+            }
+        });
+
+//    for book btn
+        bookTicketBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //add the validation of form can't be empty
+                if (nametf.getText().toString().isEmpty() ||
+                        emailtf.getText().toString().isEmpty() ||
+                        mobnotf.getText().toString().isEmpty() ||
+                        ageltf.getText().toString().isEmpty() ||
+                        arivaltf.getText().toString().isEmpty() ||
+                        departtf.getText().toString().isEmpty() ||
+                        florpreftf.getText().toString().isEmpty() ||
+
+                        amounttf.getText().toString().isEmpty())
+
+                {
+                    roomno.setText("Please fill the details");
+                }
+                else {
+                    String url="jdbc:mysql://localhost:3306/hotemmanagesyatem";
+                    String username = "root";
+                    String password = "";
+                    try {
+                        Connection connection = DriverManager.getConnection(url, username, password);
+                        String sql = "insert into roominfo"
+                                + " values (null, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        PreparedStatement preparedStmt = connection.prepareStatement(sql);
+                        preparedStmt.setString (1, nametf.getText().toString());
+                        preparedStmt.setString (2, emailtf.getText().toString());
+                        preparedStmt.setString   (3, mobnotf.getText().toString());
+                        preparedStmt.setString(4, ageltf.getText().toString());
+                        preparedStmt.setString    (5, arivaltf.getText().toString());
+                        preparedStmt.setString    (6, departtf.getText().toString());
+                        preparedStmt.setString    (7, florpreftf.getText().toString());
+                        preparedStmt.setString    (8, amounttf.getText().toString());
+                        preparedStmt.execute();
+                        System.out.println("Db connected");
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex+ "not Connected");
+                    }
+
+                    Random random = new Random();
+                    int id = random.nextInt(999999);
+                    roomno.setText("Your booking is confirmed and bookind id " + id);
+                }
+
+
+            }
+        });
 
 
 
         frame.setResizable(false);
         frame.setLayout(null);
-        frame.setSize(700, 300);
+        frame.setSize(700, 400);
         frame.setVisible(true);
     }
 }
